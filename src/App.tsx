@@ -3,7 +3,7 @@ import { TimeTracker } from "./components/TimeTracker";
 function App() {
   return (
     <>
-      <div className="bg-gray-100">
+      <div>
         <TimeTracker />
       </div>
     </>
