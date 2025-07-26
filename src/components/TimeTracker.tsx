@@ -6,12 +6,19 @@ Stop Sitting & Stand Now -> starts the standTimer & stops the sitCounter ✅
 Show Document title the active timer - ✅
 End Session - Resets sitCounter & standCounter, stores to the total Standing & Sitting time✅ 
 store to Local Storage -  ✅
+
+sittingDisabled = false, standingDisabled = true, endSessionDisabled = true
+sittingDisabled = true, standingDisabled = false, endSessionDisabled = true
+sittingDisabled = true, standingDisabled = true, endSessionDisabled = false
 */
 
 export const TimeTracker = () => {
   const [sitCounter, setSitCounter] = useState<number>(0);
   const [standCounter, setStandCounter] = useState<number>(0);
   const [currentMode, setCurrentMode] = useState<"sit" | "stand" | null>(null);
+  const [sittingDisabled, setSittingDisabled] = useState<boolean>(false);
+  const [standingDisabled, setStandingDisabled] = useState<boolean>(true);
+  const [endSessionDisabled, setEndSessionDisabled] = useState<boolean>(true);
   const activeCounter = currentMode === "sit" ? sitCounter : standCounter;
 
   const sitIntervalRef = useRef<number | null>(null);
@@ -53,6 +60,13 @@ export const TimeTracker = () => {
       setFn((prev) => prev + 1);
     }, 1000);
 
+    if (type === "sit") {
+      setSittingDisabled(true);
+      setStandingDisabled(false);
+    } else {
+      setStandingDisabled(true);
+      setEndSessionDisabled(false);
+    }
     setCurrentMode(type);
   }
   function resetSitCounter() {
@@ -87,6 +101,8 @@ export const TimeTracker = () => {
     );
     setStandCounter(0);
     standIntervalRef.current = null;
+    setSittingDisabled(false);
+    setEndSessionDisabled(true);
   }
 
   function resetAllDataLocalStorage() {
@@ -103,29 +119,30 @@ export const TimeTracker = () => {
         <div className="flex gap-2 justify-center">
           <button
             className={`${
-              currentMode === "sit"
+              sittingDisabled
                 ? "disabled:bg-gray-400 disabled:cursor-not-allowed"
                 : "!bg-green-500 text-white"
             }`}
             onClick={() => startCounter("sit")}
-            disabled={currentMode === "sit"}
+            disabled={sittingDisabled}
           >
             Start timer
           </button>
           <button
             className={`${
-              currentMode === "stand"
+              standingDisabled
                 ? "disabled:bg-gray-400 disabled:cursor-not-allowed"
-                : "!bg-green-500 text-white"
+                : "bg-green-500 text-white"
             }`}
             onClick={resetSitCounter}
-            disabled={currentMode === "stand"}
+            disabled={standingDisabled}
           >
             Stand Now
           </button>
           <button
-            className="!bg-red-200  disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="bg-red-200  disabled:bg-gray-400 disabled:cursor-not-allowed"
             onClick={endSession}
+            disabled={endSessionDisabled}
           >
             End Session
           </button>
