@@ -1,11 +1,11 @@
 import "./App.css";
 import { TimeTracker } from "./components/TimeTracker";
+import SiteHeader from "./components/SiteHeader";
 function App() {
   return (
     <>
-      <div>
-        <TimeTracker />
-      </div>
+      <SiteHeader />
+      <TimeTracker />
     </>
   );
 }
