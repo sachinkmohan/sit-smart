@@ -1,4 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { TbWalk } from "react-icons/tb";
+import { FaPlay } from "react-icons/fa6";
+import { MdSave } from "react-icons/md";
+import { GrPowerReset } from "react-icons/gr";
 
 /* 
 Start timer -> starts the sitCounter ✅
@@ -114,11 +118,15 @@ export const TimeTracker = () => {
   const standTime = formatTime(standCounter);
 
   return (
-    <>
-      <div className="flex flex-col  bg-white p-5 rounded-2xl shadow-2xl">
-        <div className="flex gap-2 justify-center">
+    <div className="flex flex-col  bg-white p-5 rounded-2xl shadow-2xl">
+      <div className="flex gap-4 m-4 justify-center">
+        <div className="flex flex-col gap-4">
+          <div className="rounded-lg py-4 px-9 bg-gray-200">
+            <p className="text-sm font-bold">Current 🧘 Time</p>
+            <p className="text-2xl font-bold">{`${sitTime.hours}h: ${sitTime.minutes}m: ${sitTime.seconds}s`}</p>
+          </div>
           <button
-            className={`${
+            className={`flex items-center justify-center gap-2  w-full ${
               sittingDisabled
                 ? "disabled:bg-gray-400 disabled:cursor-not-allowed"
                 : "!bg-green-500 text-white"
@@ -126,10 +134,17 @@ export const TimeTracker = () => {
             onClick={() => startCounter("sit")}
             disabled={sittingDisabled}
           >
-            Start timer
+            <FaPlay /> Start timer
           </button>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <div className="rounded-lg py-4 px-9 bg-gray-200">
+            <p className="text-sm font-bold">Current 🧍‍♂️ Time</p>
+            <p className="text-2xl font-bold">{`${standTime.hours}h: ${standTime.minutes}m: ${standTime.seconds}s`}</p>
+          </div>
           <button
-            className={`${
+            className={`flex items-center justify-center gap-2 ${
               standingDisabled
                 ? "disabled:bg-gray-400 disabled:cursor-not-allowed"
                 : "bg-green-500 text-white"
@@ -137,44 +152,36 @@ export const TimeTracker = () => {
             onClick={resetSitCounter}
             disabled={standingDisabled}
           >
-            Stand Now
-          </button>
-          <button
-            className="bg-red-200  disabled:bg-gray-400 disabled:cursor-not-allowed"
-            onClick={endSession}
-            disabled={endSessionDisabled}
-          >
-            End Session
+            <TbWalk /> Stand Now
           </button>
         </div>
-        <div className="flex gap-4 m-4 justify-center">
-          <div className="rounded-lg py-4 px-9 bg-gray-200">
-            <p className="text-sm font-bold">Current 🧘 Time</p>
-            <p className="text-2xl font-bold">{`${sitTime.hours}h: ${sitTime.minutes}m: ${sitTime.seconds}s`}</p>
-          </div>
-          <div className="rounded-lg py-4 px-9 bg-gray-200">
-            <p className="text-sm font-bold">Current 🧍‍♂️ Time</p>
-            <p className="text-2xl font-bold">{`${standTime.hours}h: ${standTime.minutes}m: ${standTime.seconds}s`}</p>
-          </div>
-        </div>
-        <div className="flex flex-col bg-purple-200 py-4 mx-4 rounded-lg">
-          <p className="text-sm font-bold">Total 🧘 Today</p>
-          <p className="text-2xl font-bold">{` ${formattedTodayTotalSitting.hours}h: ${formattedTodayTotalSitting.minutes}m: ${formattedTodayTotalSitting.seconds}s`}</p>
-        </div>
-        <div className="flex flex-col m-4 py-4 bg-green-200 rounded-lg">
-          <p className="text-sm font-bold">Total🧍 Today</p>
-          <p className="text-2xl font-bold">{`${formattedTodayTotalStanding.hours}h: ${formattedTodayTotalStanding.minutes}m: ${formattedTodayTotalStanding.seconds}s`}</p>
-        </div>
+      </div>
+      <div className="flex flex-col bg-purple-200 py-4 mx-4 rounded-lg">
+        <p className="text-sm font-bold">Total 🧘 Today</p>
+        <p className="text-2xl font-bold">{` ${formattedTodayTotalSitting.hours}h: ${formattedTodayTotalSitting.minutes}m: ${formattedTodayTotalSitting.seconds}s`}</p>
+      </div>
+      <div className="flex flex-col m-4 py-4 bg-green-200 rounded-lg">
+        <p className="text-sm font-bold">Total🧍 Today</p>
+        <p className="text-2xl font-bold">{`${formattedTodayTotalStanding.hours}h: ${formattedTodayTotalStanding.minutes}m: ${formattedTodayTotalStanding.seconds}s`}</p>
+      </div>
+      <div className="flex flex-col">
         <button
-          className="!bg-gray-200 disabled:bg-gray-400 disabled:cursor-not-allowed mt-4 shadow-md w-fit mx-auto"
+          className="flex items-center justify-center gap-2 bg-yellow-500 w-48 mx-auto text-white"
+          onClick={endSession}
+        >
+          <MdSave /> Pause/Save
+        </button>
+        <button
+          className="flex items-center justify-center gap-2 bg-red-400 mt-4 shadow-md w-48 mx-auto text-white"
           onClick={resetAllDataLocalStorage}
         >
-          Reset All For Today
+          <GrPowerReset /> Reset for Today
         </button>
-        <p className="text-gray-500 text-sm mt-3">
-          This will reset all your sitting and standing time for today.
-        </p>
       </div>
-    </>
+
+      <p className="text-gray-500 text-sm mt-3">
+        This will reset all your sitting and standing time for today.
+      </p>
+    </div>
   );
 };
