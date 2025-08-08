@@ -134,7 +134,7 @@ export const TimeTracker = () => {
             onClick={() => startCounter("sit")}
             disabled={sittingDisabled}
           >
-            <FaPlay /> Start timer
+            <FaPlay /> Track Sitting
           </button>
         </div>
 
@@ -144,15 +144,10 @@ export const TimeTracker = () => {
             <p className="text-2xl font-bold">{`${standTime.hours}h: ${standTime.minutes}m: ${standTime.seconds}s`}</p>
           </div>
           <button
-            className={`flex items-center justify-center gap-2 ${
-              standingDisabled
-                ? "disabled:bg-gray-400 disabled:cursor-not-allowed"
-                : "bg-green-500 text-white"
-            }`}
+            className="flex items-center justify-center gap-2 bg-green-500 text-white"
             onClick={resetSitCounter}
-            disabled={standingDisabled}
           >
-            <TbWalk /> Stand Now
+            <TbWalk /> Track Standing
           </button>
         </div>
       </div>
