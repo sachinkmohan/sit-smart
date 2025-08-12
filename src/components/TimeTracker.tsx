@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { TbWalk } from "react-icons/tb";
-import { FaPlay } from "react-icons/fa6";
 import { MdSave } from "react-icons/md";
+import { MdAirlineSeatReclineNormal } from "react-icons/md";
 import { GrPowerReset } from "react-icons/gr";
 
 /* 
@@ -59,7 +59,7 @@ export const TimeTracker = () => {
   function startCounter(type: "sit" | "stand") {
     const ref = type === "sit" ? sitIntervalRef : standIntervalRef;
     const setFn = type === "sit" ? setSitCounter : setStandCounter;
-    if (ref.current) return;
+    //if (ref.current) return;
     ref.current = setInterval(() => {
       setFn((prev) => prev + 1);
     }, 1000);
@@ -67,9 +67,13 @@ export const TimeTracker = () => {
     if (type === "sit") {
       setSittingDisabled(true);
       setStandingDisabled(false);
+      if (standIntervalRef.current !== null)
+        clearInterval(standIntervalRef.current);
     } else {
       setStandingDisabled(true);
       setEndSessionDisabled(false);
+      if (sitIntervalRef.current !== null)
+        clearInterval(sitIntervalRef.current);
     }
     setCurrentMode(type);
   }
@@ -92,21 +96,32 @@ export const TimeTracker = () => {
   }
 
   function endSession() {
-    if (standIntervalRef.current != undefined) {
+    if (standIntervalRef.current !== null) {
       clearInterval(standIntervalRef.current);
     }
-    const todayTotalStanding = parseInt(
-      localStorage.getItem("todayTotalStanding") ?? "0",
-      10
-    );
-    localStorage.setItem(
-      "todayTotalStanding",
-      (todayTotalStanding + standCounter).toString()
-    );
-    setStandCounter(0);
-    standIntervalRef.current = null;
-    setSittingDisabled(false);
-    setEndSessionDisabled(true);
+
+    if (sitIntervalRef.current !== null) {
+      clearInterval(sitIntervalRef.current);
+    }
+    // const todayTotalStanding = parseInt(
+    //   localStorage.getItem("todayTotalStanding") ?? "0",
+    //   10
+    // );
+    // const todayTotalSitting = parseInt(
+    //   localStorage.getItem("todayTotalSitting") ?? "0"
+    // );
+    // localStorage.setItem(
+    //   "todayTotalStanding",
+    //   (todayTotalStanding + standCounter).toString()
+    // );
+    // localStorage.setItem(
+    //   "todayTotalSitting",
+    //   (todayTotalSitting + sitCounter).toString()
+    // );
+    // setStandCounter(0);
+    // setSitCounter(0);
+    // standIntervalRef.current = null;
+    // sitIntervalRef.current = null;
   }
 
   function resetAllDataLocalStorage() {
@@ -127,14 +142,13 @@ export const TimeTracker = () => {
           </div>
           <button
             className={`flex items-center justify-center gap-2  w-full ${
-              sittingDisabled
-                ? "disabled:bg-gray-400 disabled:cursor-not-allowed"
-                : "!bg-green-500 text-white"
+              activeCounter === sitCounter
+                ? "bg-green-500 text-white"
+                : "bg-gray-200"
             }`}
             onClick={() => startCounter("sit")}
-            disabled={sittingDisabled}
           >
-            <FaPlay /> Track Sitting
+            <MdAirlineSeatReclineNormal /> Track Sitting
           </button>
         </div>
 
@@ -144,12 +158,38 @@ export const TimeTracker = () => {
             <p className="text-2xl font-bold">{`${standTime.hours}h: ${standTime.minutes}m: ${standTime.seconds}s`}</p>
           </div>
           <button
-            className="flex items-center justify-center gap-2 bg-green-500 text-white"
-            onClick={resetSitCounter}
+            className={`flex items-center justify-center gap-2 ${
+              activeCounter === standCounter
+                ? "bg-green-500 text-white"
+                : "bg-gray-200"
+            }`}
+            onClick={() => startCounter("stand")}
           >
             <TbWalk /> Track Standing
           </button>
         </div>
+      </div>
+      <div className="bg-gray-50 border border-gray-200  rounded-lg mx-4 mb-4 py-4">
+        <div className="flex justify-around">
+          <div className="flex justify-center items-center gap-2">
+            <MdAirlineSeatReclineNormal className="text-xl" />
+            <div>
+              <p className="text-sm text-gray-500 ">Last Sitting Time</p>
+              <p className="font-bold text-gray-800">0h:7m:0s</p>
+            </div>
+          </div>
+          <div className="flex justify-center items-center gap-2">
+            <TbWalk className="text-xl" />
+            <div>
+              <p className="text-sm text-gray-500">Last Stand Time</p>
+              <p className="font-bold text-gray-800">0h:5m:0s</p>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-xs text-gray-400 pl-8 mt-2 flex justify-items-start">
+          Saved at 10:43 am
+        </p>
       </div>
       <div className="flex flex-col bg-purple-200 py-4 mx-4 rounded-lg">
         <p className="text-sm font-bold">Total 🧘 Today</p>
