@@ -1,20 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { TbWalk } from "react-icons/tb";
-import { MdSave } from "react-icons/md";
-import { MdAirlineSeatReclineNormal } from "react-icons/md";
+import { MdSave, MdAirlineSeatReclineNormal } from "react-icons/md";
 import { GrPowerReset } from "react-icons/gr";
-
-/* 
-Start timer -> starts the sitCounter ✅
-Stop Sitting & Stand Now -> starts the standTimer & stops the sitCounter ✅
-Show Document title the active timer - ✅
-End Session - Resets sitCounter & standCounter, stores to the total Standing & Sitting time✅ 
-store to Local Storage -  ✅
-
-sittingDisabled = false, standingDisabled = true, endSessionDisabled = true
-sittingDisabled = true, standingDisabled = false, endSessionDisabled = true
-sittingDisabled = true, standingDisabled = true, endSessionDisabled = false
-*/
 
 export const TimeTracker = () => {
   const [sitCounter, setSitCounter] = useState<number>(0);
@@ -72,23 +59,6 @@ export const TimeTracker = () => {
       clearInterval(sitIntervalRef.current);
     }
     setCurrentMode(type);
-  }
-  function resetSitCounter() {
-    if (sitIntervalRef.current != undefined) {
-      clearInterval(sitIntervalRef.current);
-    }
-    const todayTotalSitting = parseInt(
-      localStorage.getItem("todayTotalSitting") ?? "0",
-      10
-    );
-    localStorage.setItem(
-      "todayTotalSitting",
-      (todayTotalSitting + sitCounter).toString()
-    );
-    setSitCounter(0);
-    startCounter("stand");
-    setCurrentMode("stand");
-    sitIntervalRef.current = null;
   }
 
   function pauseSession() {
