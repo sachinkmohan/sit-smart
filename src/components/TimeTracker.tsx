@@ -23,6 +23,9 @@ export const TimeTracker = () => {
   const [sittingDisabled, setSittingDisabled] = useState<boolean>(false);
   const [standingDisabled, setStandingDisabled] = useState<boolean>(true);
   const [endSessionDisabled, setEndSessionDisabled] = useState<boolean>(true);
+  const [lastSittingTime, setLastSittingTime] = useState<string>("");
+  const [lastStandingTime, setLastStandingTime] = useState<string>("");
+  const [currentTime, setCurrentTime] = useState<string>("");
   const activeCounter = currentMode === "sit" ? sitCounter : standCounter;
 
   const sitIntervalRef = useRef<number | null>(null);
@@ -95,7 +98,7 @@ export const TimeTracker = () => {
     sitIntervalRef.current = null;
   }
 
-  function endSession() {
+  function pauseSession() {
     if (standIntervalRef.current !== null) {
       clearInterval(standIntervalRef.current);
     }
@@ -122,6 +125,24 @@ export const TimeTracker = () => {
     // setSitCounter(0);
     // standIntervalRef.current = null;
     // sitIntervalRef.current = null;
+  }
+
+  function saveSession() {
+    const { hours, minutes, seconds } = formatTime(sitCounter);
+    const {
+      hours: hoursStand,
+      minutes: minutesStand,
+      seconds: secondsStand,
+    } = formatTime(standCounter);
+    setLastSittingTime(`${hours}h:${minutes}m:${seconds}s`);
+    setLastStandingTime(`${hoursStand}h:${minutesStand}m:${secondsStand}s`);
+
+    const now = new Date();
+    const formattedTime = now.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    setCurrentTime(formattedTime);
   }
 
   function resetAllDataLocalStorage() {
@@ -175,20 +196,20 @@ export const TimeTracker = () => {
             <MdAirlineSeatReclineNormal className="text-xl" />
             <div>
               <p className="text-sm text-gray-500 ">Last Sitting Time</p>
-              <p className="font-bold text-gray-800">0h:7m:0s</p>
+              <p className="font-bold text-gray-800">{lastSittingTime}</p>
             </div>
           </div>
           <div className="flex justify-center items-center gap-2">
             <TbWalk className="text-xl" />
             <div>
               <p className="text-sm text-gray-500">Last Stand Time</p>
-              <p className="font-bold text-gray-800">0h:5m:0s</p>
+              <p className="font-bold text-gray-800">{lastStandingTime}</p>
             </div>
           </div>
         </div>
 
         <p className="text-xs text-gray-400 pl-8 mt-2 flex justify-items-start">
-          Saved at 10:43 am
+          Saved at {currentTime}
         </p>
       </div>
       <div className="flex flex-col bg-purple-200 py-4 mx-4 rounded-lg">
@@ -202,7 +223,8 @@ export const TimeTracker = () => {
       <div className="flex flex-col">
         <button
           className="flex items-center justify-center gap-2 bg-yellow-500 w-48 mx-auto text-white"
-          onClick={endSession}
+          onClick={pauseSession}
+          onDoubleClick={saveSession}
         >
           <MdSave /> Pause/Save
         </button>
