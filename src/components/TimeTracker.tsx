@@ -20,9 +20,7 @@ export const TimeTracker = () => {
   const [sitCounter, setSitCounter] = useState<number>(0);
   const [standCounter, setStandCounter] = useState<number>(0);
   const [currentMode, setCurrentMode] = useState<"sit" | "stand" | null>(null);
-  const [sittingDisabled, setSittingDisabled] = useState<boolean>(false);
-  const [standingDisabled, setStandingDisabled] = useState<boolean>(true);
-  const [endSessionDisabled, setEndSessionDisabled] = useState<boolean>(true);
+  const [showLastSession, setShowLastSession] = useState<boolean>(false);
   const [lastSittingTime, setLastSittingTime] = useState<string>("");
   const [lastStandingTime, setLastStandingTime] = useState<string>("");
   const [currentTime, setCurrentTime] = useState<string>("");
@@ -62,21 +60,16 @@ export const TimeTracker = () => {
   function startCounter(type: "sit" | "stand") {
     const ref = type === "sit" ? sitIntervalRef : standIntervalRef;
     const setFn = type === "sit" ? setSitCounter : setStandCounter;
-    //if (ref.current) return;
     ref.current = setInterval(() => {
       setFn((prev) => prev + 1);
     }, 1000);
 
-    if (type === "sit") {
-      setSittingDisabled(true);
-      setStandingDisabled(false);
-      if (standIntervalRef.current !== null)
-        clearInterval(standIntervalRef.current);
-    } else {
-      setStandingDisabled(true);
-      setEndSessionDisabled(false);
-      if (sitIntervalRef.current !== null)
-        clearInterval(sitIntervalRef.current);
+    if (type === "sit" && standIntervalRef.current !== null) {
+      clearInterval(standIntervalRef.current);
+    }
+    // Fix: Remove unnecessary else block and directly check sitIntervalRef
+    if (type !== "sit" && sitIntervalRef.current !== null) {
+      clearInterval(sitIntervalRef.current);
     }
     setCurrentMode(type);
   }
@@ -143,6 +136,8 @@ export const TimeTracker = () => {
       minute: "2-digit",
     });
     setCurrentTime(formattedTime);
+
+    setShowLastSession(true);
   }
 
   function resetAllDataLocalStorage() {
@@ -190,28 +185,31 @@ export const TimeTracker = () => {
           </button>
         </div>
       </div>
-      <div className="bg-gray-50 border border-gray-200  rounded-lg mx-4 mb-4 py-4">
-        <div className="flex justify-around">
-          <div className="flex justify-center items-center gap-2">
-            <MdAirlineSeatReclineNormal className="text-xl" />
-            <div>
-              <p className="text-sm text-gray-500 ">Last Sitting Time</p>
-              <p className="font-bold text-gray-800">{lastSittingTime}</p>
+      {showLastSession && (
+        <div className="bg-gray-50 border border-gray-200  rounded-lg mx-4 mb-4 py-4">
+          <div className="flex justify-around">
+            <div className="flex justify-center items-center gap-2">
+              <MdAirlineSeatReclineNormal className="text-xl" />
+              <div>
+                <p className="text-sm text-gray-500 ">Last Sitting Time</p>
+                <p className="font-bold text-gray-800">{lastSittingTime}</p>
+              </div>
+            </div>
+            <div className="flex justify-center items-center gap-2">
+              <TbWalk className="text-xl" />
+              <div>
+                <p className="text-sm text-gray-500">Last Stand Time</p>
+                <p className="font-bold text-gray-800">{lastStandingTime}</p>
+              </div>
             </div>
           </div>
-          <div className="flex justify-center items-center gap-2">
-            <TbWalk className="text-xl" />
-            <div>
-              <p className="text-sm text-gray-500">Last Stand Time</p>
-              <p className="font-bold text-gray-800">{lastStandingTime}</p>
-            </div>
-          </div>
-        </div>
 
-        <p className="text-xs text-gray-400 pl-8 mt-2 flex justify-items-start">
-          Saved at {currentTime}
-        </p>
-      </div>
+          <p className="text-xs text-gray-400 pl-8 mt-2 flex justify-items-start">
+            Saved at {currentTime}
+          </p>
+        </div>
+      )}
+
       <div className="flex flex-col bg-purple-200 py-4 mx-4 rounded-lg">
         <p className="text-sm font-bold">Total 🧘 Today</p>
         <p className="text-2xl font-bold">{` ${formattedTodayTotalSitting.hours}h: ${formattedTodayTotalSitting.minutes}m: ${formattedTodayTotalSitting.seconds}s`}</p>
