@@ -99,25 +99,28 @@ export const TimeTracker = () => {
     if (sitIntervalRef.current !== null) {
       clearInterval(sitIntervalRef.current);
     }
-    // const todayTotalStanding = parseInt(
-    //   localStorage.getItem("todayTotalStanding") ?? "0",
-    //   10
-    // );
-    // const todayTotalSitting = parseInt(
-    //   localStorage.getItem("todayTotalSitting") ?? "0"
-    // );
-    // localStorage.setItem(
-    //   "todayTotalStanding",
-    //   (todayTotalStanding + standCounter).toString()
-    // );
-    // localStorage.setItem(
-    //   "todayTotalSitting",
-    //   (todayTotalSitting + sitCounter).toString()
-    // );
-    // setStandCounter(0);
-    // setSitCounter(0);
-    // standIntervalRef.current = null;
-    // sitIntervalRef.current = null;
+  }
+
+  function saveAndResetData() {
+    const todayTotalStanding = parseInt(
+      localStorage.getItem("todayTotalStanding") ?? "0",
+      10
+    );
+    const todayTotalSitting = parseInt(
+      localStorage.getItem("todayTotalSitting") ?? "0"
+    );
+    localStorage.setItem(
+      "todayTotalStanding",
+      (todayTotalStanding + standCounter).toString()
+    );
+    localStorage.setItem(
+      "todayTotalSitting",
+      (todayTotalSitting + sitCounter).toString()
+    );
+    setStandCounter(0);
+    setSitCounter(0);
+    standIntervalRef.current = null;
+    sitIntervalRef.current = null;
   }
 
   function saveSession() {
@@ -138,11 +141,16 @@ export const TimeTracker = () => {
     setCurrentTime(formattedTime);
 
     setShowLastSession(true);
+
+    saveAndResetData();
   }
 
   function resetAllDataLocalStorage() {
-    localStorage.setItem("todayTotalStanding", "0");
-    localStorage.setItem("todayTotalSitting", "0");
+    if (window.confirm("Are you sure?")) {
+      localStorage.setItem("todayTotalStanding", "0");
+      localStorage.setItem("todayTotalSitting", "0");
+      setShowLastSession(false);
+    }
   }
 
   const sitTime = formatTime(sitCounter);
@@ -226,8 +234,11 @@ export const TimeTracker = () => {
         >
           <MdSave /> Pause/Save
         </button>
+        <p className="mt-2 text-xs text-gray-400">
+          Double Click to Save Session
+        </p>
         <button
-          className="flex items-center justify-center gap-2 bg-red-400 mt-4 shadow-md w-48 mx-auto text-white"
+          className="flex items-center justify-center gap-2 bg-red-400 mt-2 shadow-md w-48 mx-auto text-white"
           onClick={resetAllDataLocalStorage}
         >
           <GrPowerReset /> Reset for Today
