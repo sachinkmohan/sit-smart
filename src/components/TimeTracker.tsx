@@ -11,6 +11,8 @@ export const TimeTracker = () => {
   const [lastSittingTime, setLastSittingTime] = useState<string>("");
   const [lastStandingTime, setLastStandingTime] = useState<string>("");
   const [currentTime, setCurrentTime] = useState<string>("");
+  const [sittingEnabled, setSittingEnabled] = useState<boolean>(false);
+  const [standingEnabled, setStandingEnabled] = useState<boolean>(false);
   const activeCounter = currentMode === "sit" ? sitCounter : standCounter;
 
   const sitIntervalRef = useRef<number | null>(null);
@@ -51,12 +53,21 @@ export const TimeTracker = () => {
       setFn((prev) => prev + 1);
     }, 1000);
 
-    if (type === "sit" && standIntervalRef.current !== null) {
-      clearInterval(standIntervalRef.current);
+    if (type === "sit") {
+      if (standIntervalRef.current !== null) {
+        clearInterval(standIntervalRef.current);
+      }
+      console.log("logged sitting");
+      setSittingEnabled(true);
+      setStandingEnabled(false);
     }
     // Fix: Remove unnecessary else block and directly check sitIntervalRef
-    if (type !== "sit" && sitIntervalRef.current !== null) {
-      clearInterval(sitIntervalRef.current);
+    if (type !== "sit") {
+      if (sitIntervalRef.current !== null) {
+        clearInterval(sitIntervalRef.current);
+      }
+      setStandingEnabled(true);
+      setSittingEnabled(false);
     }
     setCurrentMode(type);
   }
@@ -69,6 +80,8 @@ export const TimeTracker = () => {
     if (sitIntervalRef.current !== null) {
       clearInterval(sitIntervalRef.current);
     }
+    setSittingEnabled(false);
+    setStandingEnabled(false);
   }
 
   function saveAndResetData() {
@@ -89,6 +102,8 @@ export const TimeTracker = () => {
     );
     setStandCounter(0);
     setSitCounter(0);
+    setSittingEnabled(false);
+    setStandingEnabled(false);
     standIntervalRef.current = null;
     sitIntervalRef.current = null;
   }
@@ -135,11 +150,12 @@ export const TimeTracker = () => {
             <p className="text-2xl font-bold">{`${sitTime.hours}h: ${sitTime.minutes}m: ${sitTime.seconds}s`}</p>
           </div>
           <button
-            className={`flex items-center justify-center gap-2  w-full ${
+            className={`flex items-center justify-center gap-2  w-full disabled:cursor-not-allowed ${
               activeCounter === sitCounter
                 ? "bg-green-500 text-white"
                 : "bg-gray-200"
             }`}
+            disabled={sittingEnabled}
             onClick={() => startCounter("sit")}
           >
             <MdAirlineSeatReclineNormal /> Track Sitting
@@ -152,12 +168,13 @@ export const TimeTracker = () => {
             <p className="text-2xl font-bold">{`${standTime.hours}h: ${standTime.minutes}m: ${standTime.seconds}s`}</p>
           </div>
           <button
-            className={`flex items-center justify-center gap-2 ${
+            className={`flex items-center justify-center gap-2 disabled:cursor-not-allowed ${
               activeCounter === standCounter
                 ? "bg-green-500 text-white"
                 : "bg-gray-200"
             }`}
             onClick={() => startCounter("stand")}
+            disabled={standingEnabled}
           >
             <TbWalk /> Track Standing
           </button>
