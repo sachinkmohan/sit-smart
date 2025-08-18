@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { TbWalk } from "react-icons/tb";
+import { TbWalk, TbClockEdit } from "react-icons/tb";
 import { MdSave, MdAirlineSeatReclineNormal } from "react-icons/md";
 import { GrPowerReset } from "react-icons/gr";
 
@@ -13,6 +13,7 @@ export const TimeTracker = () => {
   const [currentTime, setCurrentTime] = useState<string>("");
   const [sittingEnabled, setSittingEnabled] = useState<boolean>(false);
   const [standingEnabled, setStandingEnabled] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const activeCounter = currentMode === "sit" ? sitCounter : standCounter;
 
   const sitIntervalRef = useRef<number | null>(null);
@@ -181,7 +182,7 @@ export const TimeTracker = () => {
         </div>
       </div>
       {showLastSession && (
-        <div className="bg-gray-50 border border-gray-200  rounded-lg mx-4 mb-4 py-4">
+        <div className="bg-gray-50 border border-gray-200  rounded-lg mx-4 mb-4 py-4 relative">
           <div className="flex justify-around">
             <div className="flex justify-center items-center gap-2">
               <MdAirlineSeatReclineNormal className="text-xl" />
@@ -202,6 +203,17 @@ export const TimeTracker = () => {
           <p className="text-xs text-gray-400 pl-8 mt-2 flex justify-items-start">
             Saved at {currentTime}
           </p>
+          <TbClockEdit
+            className="absolute top-0 right-0 translate-x-2 -translate-y-3 text-2xl"
+            onClick={() => setIsModalOpen(true)}
+          />
+          {isModalOpen && (
+            <div className="left-1/2 top-1/2 w-full h-auto py-6 shadow-lg  absolute bg-green-300 rounded-lg">
+              {" "}
+              Hi there!{" "}
+              <button onClick={() => setIsModalOpen(false)}>close</button>
+            </div>
+          )}
         </div>
       )}
 
