@@ -208,9 +208,29 @@ export const TimeTracker = () => {
             onClick={() => setIsModalOpen(true)}
           />
           {isModalOpen && (
-            <div className="left-1/2 top-1/2 w-full h-auto py-6 shadow-lg  absolute bg-green-300 rounded-lg">
-              {" "}
-              Hi there!{" "}
+            <div className="left-1/2 top-1/2 -translate-1/2 w-full h-auto py-6 shadow-lg bg-white border border-gray-300 absolute rounded-lg">
+              <div className="px-6">
+                <div className="flex justify-between items-center text-xl">
+                  <p>Edit Times</p>
+                  <button>X</button>
+                </div>
+                <div className="flex flex-col text-left mb-2">
+                  <label htmlFor="lastSit">Last Sitting Time</label>
+                  <input
+                    type="text"
+                    id="lastSit"
+                    className="border rounded-lg border-gray-300"
+                  />
+                </div>
+                <div className="flex flex-col text-left">
+                  <label htmlFor="lastStand">Last Standing Time</label>
+                  <input
+                    className="border border-gray-300 rounded-lg"
+                    type="text"
+                    id="lastStand"
+                  />
+                </div>
+              </div>
               <button onClick={() => setIsModalOpen(false)}>close</button>
             </div>
           )}
