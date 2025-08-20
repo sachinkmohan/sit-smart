@@ -8,8 +8,18 @@ export const TimeTracker = () => {
   const [standCounter, setStandCounter] = useState<number>(0);
   const [currentMode, setCurrentMode] = useState<"sit" | "stand" | null>(null);
   const [showLastSession, setShowLastSession] = useState<boolean>(false);
-  const [lastSittingTime, setLastSittingTime] = useState<string>("");
-  const [lastStandingTime, setLastStandingTime] = useState<string>("");
+  const [lastSittingTimeToDisplay, setLastSittingTimeToDisplay] =
+    useState<string>("");
+  const [lastStandingTimeToDisplay, setLastStandingTimeToDisplay] =
+    useState<string>("");
+  const [editedSittingTime, setEditedSittingTime] = useState<string>(
+    lastSittingTimeToDisplay
+  );
+  const [editedStandingTime, setEditedStandingTime] = useState<string>(
+    lastStandingTimeToDisplay
+  );
+  const [finalEditedSittingTime, setFinalEditedSittingTime] =
+    useState<string>("");
   const [currentTime, setCurrentTime] = useState<string>("");
   const [sittingEnabled, setSittingEnabled] = useState<boolean>(false);
   const [standingEnabled, setStandingEnabled] = useState<boolean>(false);
@@ -116,8 +126,10 @@ export const TimeTracker = () => {
       minutes: minutesStand,
       seconds: secondsStand,
     } = formatTime(standCounter);
-    setLastSittingTime(`${hours}h:${minutes}m:${seconds}s`);
-    setLastStandingTime(`${hoursStand}h:${minutesStand}m:${secondsStand}s`);
+    setLastSittingTimeToDisplay(`${hours}h:${minutes}m:${seconds}s`);
+    setLastStandingTimeToDisplay(
+      `${hoursStand}h:${minutesStand}m:${secondsStand}s`
+    );
 
     const now = new Date();
     const formattedTime = now.toLocaleTimeString([], {
@@ -138,6 +150,50 @@ export const TimeTracker = () => {
       setShowLastSession(false);
     }
   }
+
+  function calculateLastSessionTimes() {
+    console.log("lSTTD", editedSittingTime);
+    const sittingParts = editedSittingTime?.match(/\d+/g);
+    const [sittingH, sittingM, sittingS] = sittingParts
+      ? sittingParts.map(Number)
+      : [0, 0, 0];
+    const finalEditedSittingParts = finalEditedSittingTime.match(/\d+/g);
+    const [finalEditedSittingH, finalEditedSittingM, finalEditedSittingS] =
+      finalEditedSittingParts ? finalEditedSittingParts.map(Number) : [0, 0, 0];
+    const totalFinalEditedSittingInSeconds =
+      finalEditedSittingH * 60 * 60 +
+      finalEditedSittingM * 60 +
+      finalEditedSittingS;
+
+    console.log("hours", sittingH, "mins", sittingM, "seconds", sittingS);
+    const totalSittingInSeconds = sittingH * 60 * 60 + sittingM * 60 + sittingS;
+    const difference = totalFinalEditedSittingInSeconds - totalSittingInSeconds;
+    console.log(
+      "totalSittingInS",
+      totalSittingInSeconds,
+      totalFinalEditedSittingInSeconds,
+      difference
+    );
+    const todayTotalSitting = parseInt(
+      localStorage.getItem("todayTotalSitting") ?? "0",
+      10
+    );
+    localStorage.setItem(
+      "todayTotalSitting",
+      (todayTotalSitting + difference).toString()
+    );
+    setEditedSittingTime(finalEditedSittingTime);
+    setIsModalOpen(false);
+  }
+
+  // function modifyTimes() {
+  //   const newTimeSitting = lastSittingTimeToDisplay;
+  // }
+
+  useEffect(() => {
+    setEditedSittingTime(lastSittingTimeToDisplay);
+    setFinalEditedSittingTime(lastSittingTimeToDisplay);
+  }, [lastSittingTimeToDisplay]);
 
   const sitTime = formatTime(sitCounter);
   const standTime = formatTime(standCounter);
@@ -188,14 +244,18 @@ export const TimeTracker = () => {
               <MdAirlineSeatReclineNormal className="text-xl" />
               <div>
                 <p className="text-sm text-gray-500 ">Last Sitting Time</p>
-                <p className="font-bold text-gray-800">{lastSittingTime}</p>
+                <p className="font-bold text-gray-800">
+                  {finalEditedSittingTime}
+                </p>
               </div>
             </div>
             <div className="flex justify-center items-center gap-2">
               <TbWalk className="text-xl" />
               <div>
                 <p className="text-sm text-gray-500">Last Stand Time</p>
-                <p className="font-bold text-gray-800">{lastStandingTime}</p>
+                <p className="font-bold text-gray-800">
+                  {lastStandingTimeToDisplay}
+                </p>
               </div>
             </div>
           </div>
@@ -219,6 +279,8 @@ export const TimeTracker = () => {
                   <input
                     type="text"
                     id="lastSit"
+                    value={finalEditedSittingTime}
+                    onChange={(e) => setFinalEditedSittingTime(e.target.value)}
                     className="border rounded-lg border-gray-300"
                   />
                 </div>
@@ -228,10 +290,12 @@ export const TimeTracker = () => {
                     className="border border-gray-300 rounded-lg"
                     type="text"
                     id="lastStand"
+                    value={editedStandingTime}
+                    onChange={(e) => setEditedStandingTime(e.target.value)}
                   />
                 </div>
               </div>
-              <button onClick={() => setIsModalOpen(false)}>close</button>
+              <button onClick={() => calculateLastSessionTimes()}>close</button>
             </div>
           )}
         </div>
