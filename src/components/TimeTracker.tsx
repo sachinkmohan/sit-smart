@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { TbWalk } from "react-icons/tb";
+import { TbWalk, TbClockEdit } from "react-icons/tb";
 import { MdSave, MdAirlineSeatReclineNormal } from "react-icons/md";
 import { GrPowerReset } from "react-icons/gr";
 
@@ -8,11 +8,22 @@ export const TimeTracker = () => {
   const [standCounter, setStandCounter] = useState<number>(0);
   const [currentMode, setCurrentMode] = useState<"sit" | "stand" | null>(null);
   const [showLastSession, setShowLastSession] = useState<boolean>(false);
-  const [lastSittingTime, setLastSittingTime] = useState<string>("");
-  const [lastStandingTime, setLastStandingTime] = useState<string>("");
+  const [lastSittingTimeToDisplay, setLastSittingTimeToDisplay] =
+    useState<string>("");
+  const [lastStandingTimeToDisplay, setLastStandingTimeToDisplay] =
+    useState<string>("");
+  const [initialEditedSittingTime, setInitialEditedSittingTime] =
+    useState<string>(lastSittingTimeToDisplay);
+  const [initialEditedStandingTime, setInitialEditedStandingTime] =
+    useState<string>(lastStandingTimeToDisplay);
+  const [finalEditedSittingTime, setFinalEditedSittingTime] =
+    useState<string>("");
+  const [finalEditedStandingTime, setFinalEditedStandingTime] =
+    useState<string>("");
   const [currentTime, setCurrentTime] = useState<string>("");
   const [sittingEnabled, setSittingEnabled] = useState<boolean>(false);
   const [standingEnabled, setStandingEnabled] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const activeCounter = currentMode === "sit" ? sitCounter : standCounter;
 
   const sitIntervalRef = useRef<number | null>(null);
@@ -115,8 +126,10 @@ export const TimeTracker = () => {
       minutes: minutesStand,
       seconds: secondsStand,
     } = formatTime(standCounter);
-    setLastSittingTime(`${hours}h:${minutes}m:${seconds}s`);
-    setLastStandingTime(`${hoursStand}h:${minutesStand}m:${secondsStand}s`);
+    setLastSittingTimeToDisplay(`${hours}h:${minutes}m:${seconds}s`);
+    setLastStandingTimeToDisplay(
+      `${hoursStand}h:${minutesStand}m:${secondsStand}s`
+    );
 
     const now = new Date();
     const formattedTime = now.toLocaleTimeString([], {
@@ -137,6 +150,65 @@ export const TimeTracker = () => {
       setShowLastSession(false);
     }
   }
+
+  function parseTimeStringToSeconds(timeString: string): number {
+    if (!timeString) return 0;
+    const hHMMSSArr = timeString.match(/\d+/g);
+    const [timeH, timeM, timeS] = hHMMSSArr ? hHMMSSArr.map(Number) : [0, 0, 0];
+
+    const totalTimeInSeconds = timeH * 60 * 60 + timeM * 60 + timeS;
+    return totalTimeInSeconds;
+  }
+
+  function saveEditedSessionDurations() {
+    const initialEditedSittingTimeInSeconds = parseTimeStringToSeconds(
+      initialEditedSittingTime
+    );
+    const totalFinalEditedSittingInSeconds = parseTimeStringToSeconds(
+      finalEditedSittingTime
+    );
+    const sittingDifferenceInSeconds =
+      totalFinalEditedSittingInSeconds - initialEditedSittingTimeInSeconds;
+
+    const initialEditedStandingTimeInSeconds = parseTimeStringToSeconds(
+      initialEditedStandingTime
+    );
+    const totalFinalEditedStandingTimeInSeconds = parseTimeStringToSeconds(
+      finalEditedStandingTime
+    );
+    const standingDifferenceInSeconds =
+      totalFinalEditedStandingTimeInSeconds -
+      initialEditedStandingTimeInSeconds;
+    const todayTotalSitting = parseInt(
+      localStorage.getItem("todayTotalSitting") ?? "0",
+      10
+    );
+    localStorage.setItem(
+      "todayTotalSitting",
+      (todayTotalSitting + sittingDifferenceInSeconds).toString()
+    );
+    const totalTimeStanding = parseInt(
+      localStorage.getItem("todayTotalStanding") ?? "0",
+      10
+    );
+    localStorage.setItem(
+      "todayTotalStanding",
+      (totalTimeStanding + standingDifferenceInSeconds).toString()
+    );
+    setInitialEditedSittingTime(finalEditedSittingTime);
+    setInitialEditedStandingTime(finalEditedStandingTime);
+    setIsModalOpen(false);
+  }
+
+  useEffect(() => {
+    setInitialEditedSittingTime(lastSittingTimeToDisplay);
+    setFinalEditedSittingTime(lastSittingTimeToDisplay);
+  }, [lastSittingTimeToDisplay]);
+
+  useEffect(() => {
+    setInitialEditedStandingTime(lastStandingTimeToDisplay);
+    setFinalEditedStandingTime(lastStandingTimeToDisplay);
+  }, [lastStandingTimeToDisplay]);
 
   const sitTime = formatTime(sitCounter);
   const standTime = formatTime(standCounter);
@@ -181,20 +253,24 @@ export const TimeTracker = () => {
         </div>
       </div>
       {showLastSession && (
-        <div className="bg-gray-50 border border-gray-200  rounded-lg mx-4 mb-4 py-4">
+        <div className="bg-gray-50 border border-gray-200  rounded-lg mx-4 mb-4 py-4 relative">
           <div className="flex justify-around">
             <div className="flex justify-center items-center gap-2">
               <MdAirlineSeatReclineNormal className="text-xl" />
               <div>
                 <p className="text-sm text-gray-500 ">Last Sitting Time</p>
-                <p className="font-bold text-gray-800">{lastSittingTime}</p>
+                <p className="font-bold text-gray-800">
+                  {finalEditedSittingTime}
+                </p>
               </div>
             </div>
             <div className="flex justify-center items-center gap-2">
               <TbWalk className="text-xl" />
               <div>
                 <p className="text-sm text-gray-500">Last Stand Time</p>
-                <p className="font-bold text-gray-800">{lastStandingTime}</p>
+                <p className="font-bold text-gray-800">
+                  {finalEditedStandingTime}
+                </p>
               </div>
             </div>
           </div>
@@ -202,6 +278,41 @@ export const TimeTracker = () => {
           <p className="text-xs text-gray-400 pl-8 mt-2 flex justify-items-start">
             Saved at {currentTime}
           </p>
+          <TbClockEdit
+            className="absolute top-0 right-0 translate-x-2 -translate-y-3 text-2xl"
+            onClick={() => setIsModalOpen(true)}
+          />
+          {isModalOpen && (
+            <div className="left-1/2 top-1/2 -translate-1/2 w-full h-auto py-6 shadow-lg bg-white border border-gray-300 absolute rounded-lg">
+              <div className="px-6">
+                <div className="flex justify-between items-center text-xl">
+                  <p>Edit Times</p>
+                  <button onClick={() => setIsModalOpen(false)}>X</button>
+                </div>
+                <div className="flex flex-col text-left mb-2">
+                  <label htmlFor="lastSit">Last Sitting Time</label>
+                  <input
+                    type="text"
+                    id="lastSit"
+                    value={finalEditedSittingTime}
+                    onChange={(e) => setFinalEditedSittingTime(e.target.value)}
+                    className="border rounded-lg border-gray-300"
+                  />
+                </div>
+                <div className="flex flex-col text-left">
+                  <label htmlFor="lastStand">Last Standing Time</label>
+                  <input
+                    className="border border-gray-300 rounded-lg"
+                    type="text"
+                    id="lastStand"
+                    value={finalEditedStandingTime}
+                    onChange={(e) => setFinalEditedStandingTime(e.target.value)}
+                  />
+                </div>
+              </div>
+              <button onClick={() => saveEditedSessionDurations()}>save</button>
+            </div>
+          )}
         </div>
       )}
 
