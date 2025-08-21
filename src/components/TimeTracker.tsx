@@ -14,10 +14,11 @@ export const TimeTracker = () => {
     useState<string>("");
   const [initialEditedSittingTime, setInitialEditedSittingTime] =
     useState<string>(lastSittingTimeToDisplay);
-  const [editedStandingTime, setEditedStandingTime] = useState<string>(
-    lastStandingTimeToDisplay
-  );
+  const [initialEditedStandingTime, setInitialEditedStandingTime] =
+    useState<string>(lastStandingTimeToDisplay);
   const [finalEditedSittingTime, setFinalEditedSittingTime] =
+    useState<string>("");
+  const [finalEditedStandingTime, setFinalEditedStandingTime] =
     useState<string>("");
   const [currentTime, setCurrentTime] = useState<string>("");
   const [sittingEnabled, setSittingEnabled] = useState<boolean>(false);
@@ -159,41 +160,55 @@ export const TimeTracker = () => {
     return totalTimeInSeconds;
   }
 
-  function calculateLastSessionTimes() {
+  function saveEditedSessionDurations() {
     const initialEditedSittingTimeInSeconds = parseTimeStringToSeconds(
       initialEditedSittingTime
     );
     const totalFinalEditedSittingInSeconds = parseTimeStringToSeconds(
       finalEditedSittingTime
     );
-    const difference =
+    const sittingDifferenceInSeconds =
       totalFinalEditedSittingInSeconds - initialEditedSittingTimeInSeconds;
-    console.log(
-      "totalSittingInS",
-      initialEditedSittingTimeInSeconds,
-      totalFinalEditedSittingInSeconds,
-      difference
+
+    const initialEditedStandingTimeInSeconds = parseTimeStringToSeconds(
+      initialEditedStandingTime
     );
+    const totalFinalEditedStandingTimeInSeconds = parseTimeStringToSeconds(
+      finalEditedStandingTime
+    );
+    const standingDifferenceInSeconds =
+      totalFinalEditedStandingTimeInSeconds -
+      initialEditedStandingTimeInSeconds;
     const todayTotalSitting = parseInt(
       localStorage.getItem("todayTotalSitting") ?? "0",
       10
     );
     localStorage.setItem(
       "todayTotalSitting",
-      (todayTotalSitting + difference).toString()
+      (todayTotalSitting + sittingDifferenceInSeconds).toString()
+    );
+    const totalTimeStanding = parseInt(
+      localStorage.getItem("todayTotalStanding") ?? "0",
+      10
+    );
+    localStorage.setItem(
+      "todayTotalStanding",
+      (totalTimeStanding + standingDifferenceInSeconds).toString()
     );
     setInitialEditedSittingTime(finalEditedSittingTime);
+    setInitialEditedStandingTime(finalEditedStandingTime);
     setIsModalOpen(false);
   }
-
-  // function modifyTimes() {
-  //   const newTimeSitting = lastSittingTimeToDisplay;
-  // }
 
   useEffect(() => {
     setInitialEditedSittingTime(lastSittingTimeToDisplay);
     setFinalEditedSittingTime(lastSittingTimeToDisplay);
   }, [lastSittingTimeToDisplay]);
+
+  useEffect(() => {
+    setInitialEditedStandingTime(lastStandingTimeToDisplay);
+    setFinalEditedStandingTime(lastStandingTimeToDisplay);
+  }, [lastStandingTimeToDisplay]);
 
   const sitTime = formatTime(sitCounter);
   const standTime = formatTime(standCounter);
@@ -254,7 +269,7 @@ export const TimeTracker = () => {
               <div>
                 <p className="text-sm text-gray-500">Last Stand Time</p>
                 <p className="font-bold text-gray-800">
-                  {lastStandingTimeToDisplay}
+                  {finalEditedStandingTime}
                 </p>
               </div>
             </div>
@@ -272,7 +287,7 @@ export const TimeTracker = () => {
               <div className="px-6">
                 <div className="flex justify-between items-center text-xl">
                   <p>Edit Times</p>
-                  <button>X</button>
+                  <button onClick={() => setIsModalOpen(false)}>X</button>
                 </div>
                 <div className="flex flex-col text-left mb-2">
                   <label htmlFor="lastSit">Last Sitting Time</label>
@@ -290,12 +305,12 @@ export const TimeTracker = () => {
                     className="border border-gray-300 rounded-lg"
                     type="text"
                     id="lastStand"
-                    value={editedStandingTime}
-                    onChange={(e) => setEditedStandingTime(e.target.value)}
+                    value={finalEditedStandingTime}
+                    onChange={(e) => setFinalEditedStandingTime(e.target.value)}
                   />
                 </div>
               </div>
-              <button onClick={() => calculateLastSessionTimes()}>close</button>
+              <button onClick={() => saveEditedSessionDurations()}>save</button>
             </div>
           )}
         </div>
