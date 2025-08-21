@@ -12,9 +12,8 @@ export const TimeTracker = () => {
     useState<string>("");
   const [lastStandingTimeToDisplay, setLastStandingTimeToDisplay] =
     useState<string>("");
-  const [editedSittingTime, setEditedSittingTime] = useState<string>(
-    lastSittingTimeToDisplay
-  );
+  const [initialEditedSittingTime, setInitialEditedSittingTime] =
+    useState<string>(lastSittingTimeToDisplay);
   const [editedStandingTime, setEditedStandingTime] = useState<string>(
     lastStandingTimeToDisplay
   );
@@ -151,26 +150,27 @@ export const TimeTracker = () => {
     }
   }
 
-  function calculateLastSessionTimes() {
-    console.log("lSTTD", editedSittingTime);
-    const sittingParts = editedSittingTime?.match(/\d+/g);
-    const [sittingH, sittingM, sittingS] = sittingParts
-      ? sittingParts.map(Number)
-      : [0, 0, 0];
-    const finalEditedSittingParts = finalEditedSittingTime.match(/\d+/g);
-    const [finalEditedSittingH, finalEditedSittingM, finalEditedSittingS] =
-      finalEditedSittingParts ? finalEditedSittingParts.map(Number) : [0, 0, 0];
-    const totalFinalEditedSittingInSeconds =
-      finalEditedSittingH * 60 * 60 +
-      finalEditedSittingM * 60 +
-      finalEditedSittingS;
+  function parseTimeStringToSeconds(timeString: string): number {
+    if (!timeString) return 0;
+    const hHMMSSArr = timeString.match(/\d+/g);
+    const [timeH, timeM, timeS] = hHMMSSArr ? hHMMSSArr.map(Number) : [0, 0, 0];
 
-    console.log("hours", sittingH, "mins", sittingM, "seconds", sittingS);
-    const totalSittingInSeconds = sittingH * 60 * 60 + sittingM * 60 + sittingS;
-    const difference = totalFinalEditedSittingInSeconds - totalSittingInSeconds;
+    const totalTimeInSeconds = timeH * 60 * 60 + timeM * 60 + timeS;
+    return totalTimeInSeconds;
+  }
+
+  function calculateLastSessionTimes() {
+    const initialEditedSittingTimeInSeconds = parseTimeStringToSeconds(
+      initialEditedSittingTime
+    );
+    const totalFinalEditedSittingInSeconds = parseTimeStringToSeconds(
+      finalEditedSittingTime
+    );
+    const difference =
+      totalFinalEditedSittingInSeconds - initialEditedSittingTimeInSeconds;
     console.log(
       "totalSittingInS",
-      totalSittingInSeconds,
+      initialEditedSittingTimeInSeconds,
       totalFinalEditedSittingInSeconds,
       difference
     );
@@ -182,7 +182,7 @@ export const TimeTracker = () => {
       "todayTotalSitting",
       (todayTotalSitting + difference).toString()
     );
-    setEditedSittingTime(finalEditedSittingTime);
+    setInitialEditedSittingTime(finalEditedSittingTime);
     setIsModalOpen(false);
   }
 
@@ -191,7 +191,7 @@ export const TimeTracker = () => {
   // }
 
   useEffect(() => {
-    setEditedSittingTime(lastSittingTimeToDisplay);
+    setInitialEditedSittingTime(lastSittingTimeToDisplay);
     setFinalEditedSittingTime(lastSittingTimeToDisplay);
   }, [lastSittingTimeToDisplay]);
 
