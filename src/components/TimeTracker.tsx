@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { TbWalk, TbClockEdit } from "react-icons/tb";
 import { MdSave, MdAirlineSeatReclineNormal } from "react-icons/md";
+import { IoMdCloseCircleOutline } from "react-icons/io";
 import { GrPowerReset } from "react-icons/gr";
+import { FaSave } from "react-icons/fa";
 
 export const TimeTracker = () => {
   const [sitCounter, setSitCounter] = useState<number>(0);
@@ -285,32 +287,57 @@ export const TimeTracker = () => {
           {isModalOpen && (
             <div className="left-1/2 top-1/2 -translate-1/2 w-full h-auto py-6 shadow-lg bg-white border border-gray-300 absolute rounded-lg">
               <div className="px-6">
-                <div className="flex justify-between items-center text-xl">
-                  <p>Edit Times</p>
-                  <button onClick={() => setIsModalOpen(false)}>X</button>
+                <div className="flex justify-between items-center text-xl mb-4">
+                  <p className="font-bold">Edit Times</p>
+                  <button
+                    className="!p-0 text-red-400 !text-2xl"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    <IoMdCloseCircleOutline />
+                  </button>
                 </div>
                 <div className="flex flex-col text-left mb-2">
-                  <label htmlFor="lastSit">Last Sitting Time</label>
-                  <input
-                    type="text"
-                    id="lastSit"
-                    value={finalEditedSittingTime}
-                    onChange={(e) => setFinalEditedSittingTime(e.target.value)}
-                    className="border rounded-lg border-gray-300"
-                  />
+                  <label htmlFor="lastSit" className="text-sm mb-1">
+                    Last Sitting Time
+                  </label>
+                  <div className="relative mb-2">
+                    <MdAirlineSeatReclineNormal className="absolute top-1/2 left-2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      id="lastSit"
+                      value={finalEditedSittingTime}
+                      onChange={(e) =>
+                        setFinalEditedSittingTime(e.target.value)
+                      }
+                      className="border rounded-lg border-gray-300 p-2 pl-8 w-full"
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-col text-left">
-                  <label htmlFor="lastStand">Last Standing Time</label>
-                  <input
-                    className="border border-gray-300 rounded-lg"
-                    type="text"
-                    id="lastStand"
-                    value={finalEditedStandingTime}
-                    onChange={(e) => setFinalEditedStandingTime(e.target.value)}
-                  />
+                  <label htmlFor="lastStand" className=" text-sm mb-1">
+                    Last Standing Time
+                  </label>
+                  <div className="relative mb-2">
+                    <TbWalk className="absolute top-1/2 -translate-y-1/2 left-2" />
+                    <input
+                      className="border rounded-lg border-gray-300 p-2 pl-8 w-full"
+                      type="text"
+                      id="lastStand"
+                      value={finalEditedStandingTime}
+                      onChange={(e) =>
+                        setFinalEditedStandingTime(e.target.value)
+                      }
+                    />
+                  </div>
                 </div>
+                <button
+                  className="bg-blue-400 hover:bg-blue-500 flex items-center justify-center gap-2 w-full p-2 my-2"
+                  onClick={() => saveEditedSessionDurations()}
+                >
+                  <FaSave className="text-white " />{" "}
+                  <span className="text-white">Save</span>
+                </button>
               </div>
-              <button onClick={() => saveEditedSessionDurations()}>save</button>
             </div>
           )}
         </div>
