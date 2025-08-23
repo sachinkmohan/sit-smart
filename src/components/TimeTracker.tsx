@@ -4,6 +4,7 @@ import { MdSave, MdAirlineSeatReclineNormal } from "react-icons/md";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { GrPowerReset } from "react-icons/gr";
 import { FaSave } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 export const TimeTracker = () => {
   const [sitCounter, setSitCounter] = useState<number>(0);
@@ -71,14 +72,15 @@ export const TimeTracker = () => {
         clearInterval(standIntervalRef.current);
       }
       console.log("logged sitting");
+      toast("🧘 Sitting Timer started!");
       setSittingEnabled(true);
       setStandingEnabled(false);
     }
-    // Fix: Remove unnecessary else block and directly check sitIntervalRef
     if (type !== "sit") {
       if (sitIntervalRef.current !== null) {
         clearInterval(sitIntervalRef.current);
       }
+      toast("🧍‍♂️ Standing Timer started!");
       setStandingEnabled(true);
       setSittingEnabled(false);
     }
@@ -93,6 +95,7 @@ export const TimeTracker = () => {
     if (sitIntervalRef.current !== null) {
       clearInterval(sitIntervalRef.current);
     }
+    toast("Both the timers paused.");
     setSittingEnabled(false);
     setStandingEnabled(false);
   }
@@ -143,6 +146,7 @@ export const TimeTracker = () => {
     setShowLastSession(true);
 
     saveAndResetData();
+    toast("Data saved and current session reset.");
   }
 
   function resetAllDataLocalStorage() {
@@ -150,6 +154,7 @@ export const TimeTracker = () => {
       localStorage.setItem("todayTotalStanding", "0");
       localStorage.setItem("todayTotalSitting", "0");
       setShowLastSession(false);
+      toast("Todays data is now reset.");
     }
   }
 
@@ -200,6 +205,7 @@ export const TimeTracker = () => {
     setInitialEditedSittingTime(finalEditedSittingTime);
     setInitialEditedStandingTime(finalEditedStandingTime);
     setIsModalOpen(false);
+    toast("Data now modified.");
   }
 
   useEffect(() => {
