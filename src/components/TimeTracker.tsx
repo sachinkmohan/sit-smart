@@ -237,6 +237,12 @@ export const TimeTracker = () => {
       "todayTotalStanding",
       (totalTimeStanding + standingDifferenceInSeconds).toString()
     );
+    setTodayTotalStandingFromLocalStorage(
+      totalTimeStanding + standingDifferenceInSeconds
+    );
+    setTodayTotalSittingFromLocalStorage(
+      todayTotalSitting + sittingDifferenceInSeconds
+    );
     setInitialEditedSittingTime(finalEditedSittingTime);
     setInitialEditedStandingTime(finalEditedStandingTime);
     setIsModalOpen(false);
