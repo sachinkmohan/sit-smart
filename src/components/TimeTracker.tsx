@@ -5,6 +5,7 @@ import { IoMdCloseCircleOutline } from "react-icons/io";
 import { GrPowerReset } from "react-icons/gr";
 import { FaSave } from "react-icons/fa";
 import { toast } from "react-toastify";
+import StandSitRatio from "./StandSitRatio";
 
 export const TimeTracker = () => {
   const [sitCounter, setSitCounter] = useState<number>(0);
@@ -23,6 +24,14 @@ export const TimeTracker = () => {
     useState<string>("");
   const [finalEditedStandingTime, setFinalEditedStandingTime] =
     useState<string>("");
+  const [
+    todayTotalStandingFromLocalStorage,
+    setTodayTotalStandingFromLocalStorage,
+  ] = useState<number>(0);
+  const [
+    todayTotalSittingFromLocalStorage,
+    setTodayTotalSittingFromLocalStorage,
+  ] = useState<number>(0);
   const [currentTime, setCurrentTime] = useState<string>("");
   const [sittingEnabled, setSittingEnabled] = useState<boolean>(false);
   const [standingEnabled, setStandingEnabled] = useState<boolean>(false);
@@ -51,6 +60,26 @@ export const TimeTracker = () => {
   const formattedTodayTotalSitting = formatTime(
     parseInt(todayTotalSitting, 10)
   );
+
+  useEffect(() => {
+    const initialTodayTotalStandingFromLocalStorage =
+      localStorage.getItem("todayTotalStanding") || "Do a Session";
+    const parsedStandingTime =
+      initialTodayTotalStandingFromLocalStorage === "Do a Session"
+        ? 0
+        : parseInt(initialTodayTotalStandingFromLocalStorage, 10);
+    setTodayTotalStandingFromLocalStorage(parsedStandingTime);
+  }, [todayTotalStandingFromLocalStorage]);
+
+  useEffect(() => {
+    const initialTodayTotalSittingFromLocalStorage =
+      localStorage.getItem("todayTotalSitting") || "Do a Session";
+    const parsedSittingTime =
+      initialTodayTotalSittingFromLocalStorage === "Do a Session"
+        ? 0
+        : parseInt(initialTodayTotalSittingFromLocalStorage, 10);
+    setTodayTotalSittingFromLocalStorage(parsedSittingTime);
+  }, [todayTotalSittingFromLocalStorage]);
 
   useEffect(() => {
     if (currentMode === null) return;
@@ -108,6 +137,12 @@ export const TimeTracker = () => {
     const todayTotalSitting = parseInt(
       localStorage.getItem("todayTotalSitting") ?? "0"
     );
+
+    const todayTotalStandingInSeconds = todayTotalStanding + standCounter;
+    const todayTotalSittingInSeconds = todayTotalSitting + sitCounter;
+    setTodayTotalStandingFromLocalStorage(todayTotalStandingInSeconds);
+    setTodayTotalSittingFromLocalStorage(todayTotalSittingInSeconds);
+
     localStorage.setItem(
       "todayTotalStanding",
       (todayTotalStanding + standCounter).toString()
@@ -223,6 +258,10 @@ export const TimeTracker = () => {
 
   return (
     <div className="flex flex-col  bg-white p-5 rounded-2xl shadow-2xl">
+      <StandSitRatio
+        StandRatio={todayTotalStandingFromLocalStorage}
+        SitRatio={todayTotalSittingFromLocalStorage}
+      />
       <div className="flex gap-4 m-4 justify-center">
         <div className="flex flex-col gap-4">
           <div className="rounded-lg py-4 px-9 bg-gray-200">
