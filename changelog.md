@@ -1,0 +1,3 @@
+- Removed bold from h, m, s units in RatioHistory table and fixed spacing for better readability.
+- Made the h, m, s units bold in the RatioHistory table by wrapping them in <b> tags for better visual emphasis.
+- Added color to the numbers in the RatioHistory table (blue for standing, green for sitting) to reduce distraction from bold units and improve readability.
