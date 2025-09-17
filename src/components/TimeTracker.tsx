@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { TbWalk, TbClockEdit } from "react-icons/tb";
 import { MdSave, MdAirlineSeatReclineNormal } from "react-icons/md";
 import { IoMdCloseCircleOutline } from "react-icons/io";
+import { LuHistory } from "react-icons/lu";
 import { GrPowerReset } from "react-icons/gr";
 import { FaSave } from "react-icons/fa";
 import { toast } from "react-toastify";
 import StandSitRatio from "./StandSitRatio";
 import { subDays, format } from "date-fns";
+import { NavLink } from "react-router";
 
 export const TimeTracker = () => {
   const [sitCounter, setSitCounter] = useState<number>(0);
@@ -444,6 +446,12 @@ export const TimeTracker = () => {
       <p className="text-gray-500 text-sm mt-3">
         This will reset all your sitting and standing time for today.
       </p>
+      <NavLink
+        to="/history"
+        className="text-blue-500 text-sm mt-1 flex justify-center gap-1"
+      >
+        <LuHistory className="mt-1" /> View Last 7 Days History
+      </NavLink>
     </div>
   );
 };
