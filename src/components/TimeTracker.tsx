@@ -6,6 +6,7 @@ import { GrPowerReset } from "react-icons/gr";
 import { FaSave } from "react-icons/fa";
 import { toast } from "react-toastify";
 import StandSitRatio from "./StandSitRatio";
+import { subDays, format } from "date-fns";
 
 export const TimeTracker = () => {
   const [sitCounter, setSitCounter] = useState<number>(0);
@@ -186,6 +187,7 @@ export const TimeTracker = () => {
 
   function resetAllDataLocalStorage() {
     if (window.confirm("Are you sure?")) {
+      addToLastSevenDaysLog();
       localStorage.setItem("todayTotalStanding", "0");
       localStorage.setItem("todayTotalSitting", "0");
       setShowLastSession(false);
@@ -261,6 +263,24 @@ export const TimeTracker = () => {
 
   const sitTime = formatTime(sitCounter);
   const standTime = formatTime(standCounter);
+
+  function addToLastSevenDaysLog() {
+    const yesterday = format(subDays(new Date(), 1), "dd-MM-yyyy");
+
+    const existingLog = JSON.parse(
+      localStorage.getItem("lastSevenDaysLog") || "[]"
+    );
+
+    const newEntry = {
+      date: yesterday,
+      sitting: localStorage.getItem("todayTotalSitting") || 0,
+      standing: localStorage.getItem("todayTotalStanding") || 0,
+    };
+
+    const updatedLog = [...existingLog, newEntry].slice(-7);
+
+    localStorage.setItem("lastSevenDaysLog", JSON.stringify(updatedLog));
+  }
 
   return (
     <div className="flex flex-col  bg-white p-5 rounded-2xl shadow-2xl">
