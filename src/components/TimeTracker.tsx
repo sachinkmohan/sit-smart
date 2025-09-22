@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import StandSitRatio from "./StandSitRatio";
 import { subDays, format } from "date-fns";
 import { NavLink } from "react-router";
+import StartTimeTracker from "./StartTimeTracker";
 
 export const TimeTracker = () => {
   const [sitCounter, setSitCounter] = useState<number>(0);
@@ -43,6 +44,9 @@ export const TimeTracker = () => {
 
   const sitIntervalRef = useRef<number | null>(null);
   const standIntervalRef = useRef<number | null>(null);
+
+  const [sitTimerStarted, setSitTimerStarted] = useState("");
+  const [standTimerStarted, setStandTimerStarted] = useState("");
 
   const formatTime = (counter: number) => {
     const hours = Math.floor(counter / 3600);
@@ -107,6 +111,8 @@ export const TimeTracker = () => {
       toast("🧘 Sitting Timer started!");
       setSittingEnabled(true);
       setStandingEnabled(false);
+      const now = format(new Date(), "hh:mm a");
+      setSitTimerStarted(now);
     }
     if (type !== "sit") {
       if (sitIntervalRef.current !== null) {
@@ -115,6 +121,8 @@ export const TimeTracker = () => {
       toast("🧍‍♂️ Standing Timer started!");
       setStandingEnabled(true);
       setSittingEnabled(false);
+      const now = format(new Date(), "hh:mm a");
+      setStandTimerStarted(now);
     }
     setCurrentMode(type);
   }
@@ -415,6 +423,11 @@ export const TimeTracker = () => {
           )}
         </div>
       )}
+
+      <StartTimeTracker
+        sitTime={sitTimerStarted}
+        standTime={standTimerStarted}
+      />
 
       <div className="flex flex-col bg-purple-200 py-4 mx-4 rounded-lg">
         <p className="text-sm font-bold">Total 🧘 Today</p>
