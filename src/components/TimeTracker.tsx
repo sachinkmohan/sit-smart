@@ -7,6 +7,7 @@ import { GrPowerReset } from "react-icons/gr";
 import { FaSave } from "react-icons/fa";
 import { toast } from "react-toastify";
 import StandSitRatio from "./StandSitRatio";
+import WeeklyStandingGoal from "./WeeklyStandingGoal"; // Import new component
 import { subDays, format } from "date-fns";
 import { NavLink } from "react-router";
 import StartTimeTracker from "./StartTimeTracker";
@@ -32,6 +33,8 @@ export const TimeTracker = () => {
     todayTotalStandingFromLocalStorage,
     setTodayTotalStandingFromLocalStorage,
   ] = useState<number>(0);
+  // Add state for weekly standing total
+  const [weeklyTotalStanding, setWeeklyTotalStanding] = useState<number>(0);
   const [
     todayTotalSittingFromLocalStorage,
     setTodayTotalSittingFromLocalStorage,
@@ -292,12 +295,43 @@ export const TimeTracker = () => {
     localStorage.setItem("lastSevenDaysLog", JSON.stringify(updatedLog));
   }
 
+  // Add useEffect to calculate weekly standing hours from last 7 days log
+  useEffect(() => {
+    const lastSevenDaysLog = JSON.parse(
+      localStorage.getItem("lastSevenDaysLog") || "[]"
+    );
+
+    // Sum up all standing time from the last 7 days + today's standing
+    const weeklyStanding = lastSevenDaysLog.reduce(
+      (total: number, entry: any) => {
+        const standing =
+          typeof entry.standing === "string"
+            ? parseInt(entry.standing, 10)
+            : entry.standing;
+        return total + (standing || 0);
+      },
+      0
+    );
+
+    // Add today's standing time
+    const todayStanding = parseInt(
+      localStorage.getItem("todayTotalStanding") || "0",
+      10
+    );
+
+    setWeeklyTotalStanding(weeklyStanding + todayStanding);
+  }, [todayTotalStandingFromLocalStorage]); // Recalculate when today's standing changes
+
   return (
     <div className="flex flex-col  bg-white p-5 rounded-2xl shadow-2xl">
-      <StandSitRatio
-        StandRatio={todayTotalStandingFromLocalStorage}
-        SitRatio={todayTotalSittingFromLocalStorage}
-      />
+      {/* Add max-width container and adjust grid for proper width fitting */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6 w-full max-w-full">
+        <StandSitRatio
+          StandRatio={todayTotalStandingFromLocalStorage}
+          SitRatio={todayTotalSittingFromLocalStorage}
+        />
+        <WeeklyStandingGoal currentWeekStanding={weeklyTotalStanding} />
+      </div>
       <div className="flex gap-4 m-4 justify-center">
         <div className="flex flex-col gap-4">
           <div className="rounded-lg py-4 px-9 bg-gray-200">
